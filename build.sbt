@@ -7,10 +7,13 @@ scalaVersion := "2.13.7"
 idePackagePrefix := Some("com.example.spark_streaming_hw")
 
 val sparkVersion = "3.2.0"
+val scalaJsonVersion = "4.0.2"
+
 
 lazy val kafka_producer = project
   .settings(
-    libraryDependencies += "org.apache.kafka" % "kafka-clients" % "2.8.0"
+    libraryDependencies ++= Seq("org.apache.kafka" % "kafka-clients" % "2.8.0",
+    "org.json4s" %% "json4s-jackson" % scalaJsonVersion)
   )
 
 lazy val spark_app = project

@@ -7,8 +7,15 @@ import java.util.Properties
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import scala.util.Random
+import org.json4s.DefaultFormats
+import org.json4s.jackson.Serialization.write
+
+//Customer. the amount in the check. shopping list
+case class Customer(id: Int, amount: Int, shoppingList: List[String])
+
 
 object KafkaProducerApp extends App {
+  implicit val formats = DefaultFormats
 
   val log = Logger.getLogger("KafkaProducerApp")
 
@@ -30,11 +37,17 @@ object KafkaProducerApp extends App {
   val producer = new KafkaProducer[Long, String](properties)
 
   var key = 0L
+  val shoppingList = "Water.Sweet.Bread.Meat.Groats.Fish.Vegetables".split("\\.").toList
 
   while (true) {
     val timestamp = Instant.now.toEpochMilli
     key += 1
-    val value = Random.nextString(Random.nextInt(100)) // TODO: some meaningful value generation?
+
+    val currentShoppingList = Random.shuffle(shoppingList).take(Random.nextInt(3) + 1)
+    val sum = (Random.nextInt(90) + 10) * currentShoppingList.size
+    val id = Random.nextInt(9999)
+
+    val value: String = write(Customer(id, sum, currentShoppingList))
     val record = new ProducerRecord(topic, null, timestamp, key, value)
 
     producer.send(record)
